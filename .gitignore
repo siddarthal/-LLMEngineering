@@ -1,5 +1,5 @@
 # Github's default gitignore for Python
-
+.pth
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
