@@ -4,7 +4,7 @@ import os
 
 load_dotenv(override=True)
 
-DEFAULT_MODEL_NAME = os.getenv("PRICER_PREPROCESSOR_MODEL", "ollama/codellama:7b")
+DEFAULT_MODEL_NAME = os.getenv("PRICER_PREPROCESSOR_MODEL", "ollama/qwen2.5-coder:1.5b")
 DEFAULT_REASONING_EFFORT = "low" if "gpt-oss" in DEFAULT_MODEL_NAME else None
 
 SYSTEM_PROMPT = """Create a concise description of a product. Respond only in this format. Do not include part numbers.
