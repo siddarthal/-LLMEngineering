@@ -8,13 +8,10 @@ import requests
 import time
 
 feeds = [
-    "https://www.dealnews.com/c142/Electronics/?rss=1",
-    "https://www.dealnews.com/c39/Computers/?rss=1",
-    "https://www.dealnews.com/f1912/Smart-Home/?rss=1",
+    "https://slickdeals.net/newsearch.php?mode=frontpage&searcharea=deals&searchin=first&rss=1",
+    "https://9to5toys.com/feed/",
+    "https://camelcamelcamel.com/top_drops/feed?country=us",
 ]
-
-# You could also add: "https://www.dealnews.com/c238/Automotive/?rss=1"
-# "https://www.dealnews.com/c196/Home-Garden/?rss=1"
 
 
 def extract(html_snippet: str) -> str:
@@ -51,17 +48,17 @@ class ScrapedDeal:
         Populate this instance based on the provided dict
         """
         self.title = entry["title"]
-        self.summary = extract(entry["summary"])
         self.url = entry["links"][0]["href"]
-        stuff = requests.get(self.url).content
-        soup = BeautifulSoup(stuff, "html.parser")
-        content = soup.find("div", class_="content-section").get_text()
-        content = content.replace("\nmore", "").replace("\n", " ")
-        if "Features" in content:
-            self.details, self.features = content.split("Features", 1)
-        else:
-            self.details = content
-            self.features = ""
+        raw_html = entry.get("summary", "") or entry.get("content", [{}])[0].get("value", "")
+        soup = BeautifulSoup(raw_html, "html.parser")
+        external_links = [a["href"] for a in soup.find_all("a", href=True)
+                          if not any(d in a["href"] for d in ["reddit.com", "slickdeals.net", "9to5toys.com", "camelcamelcamel.com"])]
+        if external_links:
+            self.url = external_links[0]
+        content = re.sub(r"\s+", " ", soup.get_text()).strip()
+        self.summary = content[:200]
+        self.details = content
+        self.features = ""
         self.truncate()
 
     def truncate(self):
